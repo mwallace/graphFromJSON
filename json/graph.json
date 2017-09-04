@@ -1,0 +1,26 @@
+[
+	{
+		"label":"a",
+		"edges": ["b", "c", "e"]
+	},
+	{
+		"label":"b",
+		"edges": ["d", "f"]
+	},
+	{
+		"label":"c",
+		"edges": []
+	},
+	{
+		"label":"d",
+		"edges": ["c"]
+	},
+	{
+		"label":"e",
+		"edges": []
+	},
+	{
+		"label":"f",
+		"edges": ["d"]
+	}
+]
