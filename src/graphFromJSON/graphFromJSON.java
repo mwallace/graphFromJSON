@@ -23,6 +23,7 @@ public class graphFromJSON {
 		try {
 			Vertex[] vertices = gson.fromJson(new FileReader(input), Vertex[].class);
 			System.out.println(gson.toJson(vertices));
+
 		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -37,7 +38,43 @@ public class graphFromJSON {
 	}
 }
 
+// Vertex with label and adjacency list
 class Vertex {
+	
 	private String label;
-	private ArrayList<String> edges;
+	private ArrayList<Edge> edges;
+	
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
+	}
+	public ArrayList<Edge> getEdges() {
+		return edges;
+	}
+	public void setEdges(ArrayList<Edge> edges) {
+		this.edges = edges;
+	}
+	
+	// One-way weighted edge to a vertex
+	class Edge {
+		
+		private String adjacentTo;
+		private int weight;
+		
+		public String getAdjacentTo() {
+			return adjacentTo;
+		}
+		public void setAdjacentTo(String adjacentTo) {
+			this.adjacentTo = adjacentTo;
+		}
+		public int getWeight() {
+			return weight;
+		}
+		public void setWeight(int weight) {
+			this.weight = weight;
+		}
+	}
 }
+
