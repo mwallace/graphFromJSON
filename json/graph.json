@@ -18,7 +18,12 @@
 	},
 	{
 		"label":"c",
-		"edges": []
+		"edges": 
+		[
+			{"adjacentTo":"q", "weight":"2"},
+			{"adjacentTo":"r", "weight":"2"},
+			{"adjacentTo":"s", "weight":"2"}
+		]
 	},
 	{
 		"label":"d",
