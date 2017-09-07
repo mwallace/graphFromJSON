@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -32,7 +33,7 @@ class Vertex {
 	
 	public Vertex(String label) {
 		this.label = label;
-		edges = new ArrayList<Edge>();
+		edges = new HashSet<Edge>();
 	}
 	
 	public void print() {
@@ -46,7 +47,7 @@ class Vertex {
 	}
 	
 	private String label;
-	private ArrayList<Edge> edges;
+	private HashSet<Edge> edges;
 	
 	public String getLabel() {
 		return label;
@@ -54,7 +55,7 @@ class Vertex {
 	public void setLabel(String label) {
 		this.label = label;
 	}
-	public void setEdges(ArrayList<Edge> edges) {
+	public void setEdges(HashSet<Edge> edges) {
 		this.edges = edges;
 	}
 	public void setEdge(String adjacentTo, int weight) {
@@ -68,6 +69,14 @@ class Vertex {
 		}
 		return adjacentVertices;
 	}
+    @Override
+    public boolean equals(Object obj) {
+        return !super.equals(obj);
+    }
+
+    public int hashCode() {
+        return this.label.hashCode();
+    }
 	
 	// One-way weighted edge to a vertex
 	class Edge {
@@ -91,6 +100,14 @@ class Vertex {
 		public void setWeight(int weight) {
 			this.weight = weight;
 		}
+	    @Override
+	    public boolean equals(Object obj) {
+	        return !super.equals(obj);
+	    }
+
+	    public int hashCode() {
+	        return this.adjacentTo.hashCode();
+	    }
 	}
 }
 
@@ -107,8 +124,8 @@ class Graph {
 		Gson gson = new Gson();
 		try {
 			FileReader fr = new FileReader(pathToJSON);
-			vertices = gson.fromJson(fr, new TypeToken<ArrayList<Vertex>>(){}.getType());
-
+			verticesSet = 
+					gson.fromJson(fr, new TypeToken<HashSet<Vertex>>(){}.getType());
 		} catch (JsonSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,52 +136,60 @@ class Graph {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 	
-	// Verify that every vertex listed as an edge exists in graph. If it doesn't
-	// exist, add it with no new edges.
+	
+	// The JSON data might not contain a valid graph structure, so this data must be 
+	// validated (e.g. if the JSON indicates an edge involving a vertex that isn't
+	// also defined in its own entry, then it won't get added to the vertex set. We
+	// need to add it to the set manually).
 	private void validateGraph() {
-		HashMap<String, Integer> labelsInGraph = new HashMap<String, Integer>();
-		HashMap<String, Integer> labelsToCheck = new HashMap<String, Integer>();
-		// Build a hash table with all vertex labels
-		for (Vertex v: vertices) {
-			// Add labels of vertices in graph to hash table
-			labelsInGraph.put(v.getLabel(), 0);
-			// Add labels in each vertex's adjacency list to second hash table
+		addMissingVertices();
+	}
+
+	// Verify that every vertex listed as an edge exists in graph. If it doesn't
+	// exist, add it with no new edges. We do this by creating a set of all 
+	// vertex labels that are reachable by vertices already present in the graph.
+	private void addMissingVertices() {
+		HashSet<String> reachableVertices = new HashSet<String>();
+		// Populate set
+		for (Vertex v: verticesSet) {
+			// Add labels in each vertex's adjacency list to set
 			ArrayList<String> edges = v.getAdjacent();
 			for (String e: edges) {
-				labelsToCheck.put(e, 0);
+				reachableVertices.add(e);
 			}
 		}
-        for (String l: labelsToCheck.keySet())
-        {
-            if (!labelsInGraph.containsKey(l)) {
-            	Vertex v = new Vertex(l);
-            	vertices.add(v);
-            }
-        } 
+		reachableVertices.forEach(
+					(label) -> {
+			            if (!verticesSet.contains(label)) {
+			            	Vertex vertex = new Vertex(label);
+			            	verticesSet.add(vertex);
+			            }
+					}
+				);
 	}
-	
+
 	public void addEdge(Vertex src, Vertex dst, int weight) {
 		// If either src or dst do not already exist in graph, add them
-		if (!vertices.contains(src))
-			vertices.add(src);
-		if (!vertices.contains(dst))
-			vertices.add(dst);
-		for (Vertex v: vertices) {
+		if (!verticesSet.contains(src))
+			verticesSet.add(src);
+		if (!verticesSet.contains(dst))
+			verticesSet.add(dst);
+		for (Vertex v: verticesSet) {
 			if (v == src) {
 				v.setEdge(dst.getLabel(), weight);
 			}
 		}
 	}
-	
+
 	// Print out the complete adjacency list
 	public void print() {
-		for (Vertex v: vertices) {
+		for (Vertex v: verticesSet) {
 			v.print();
 			System.out.println();
 		}
 	}
-	protected ArrayList<Vertex> vertices;
+	//protected ArrayList<Vertex> vertices;
+	protected HashSet<Vertex> verticesSet;
 }

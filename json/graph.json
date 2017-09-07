@@ -5,7 +5,18 @@
 		[
 			{"adjacentTo":"b", "weight":"1"},
 			{"adjacentTo":"c", "weight":"2"},
-			{"adjacentTo":"e", "weight":"1"}
+			{"adjacentTo":"e", "weight":"1"},
+			{"adjacentTo":"e", "weight":"2"}
+		]
+	},
+		{
+		"label":"a",
+		"edges": 
+		[
+			{"adjacentTo":"b", "weight":"1"},
+			{"adjacentTo":"c", "weight":"2"},
+			{"adjacentTo":"e", "weight":"1"},
+			{"adjacentTo":"e", "weight":"2"}
 		]
 	},
 	{
