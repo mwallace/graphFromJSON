@@ -22,7 +22,7 @@ public class graphFromJSON {
 		Vertex v1 = new Vertex("x");
 		Vertex v2 = new Vertex("y");
 		g.addEdge(v1, v2, 5);
-		
+		g.addEdge(v1, v2, 5);	
 		g.print();
 	}
 	
@@ -170,18 +170,14 @@ class Graph {
 				);
 	}
 
+	// Add edge between two vertices
 	public void addEdge(Vertex src, Vertex dst, int weight) {
-		// If either src or dst do not already exist in graph, add them
+		// Add edge between src and dst
+		src.setEdge(dst.getLabel(), weight);
+		// If src does not exist in graph, add it
 		if (!verticesSet.contains(src))
 			verticesSet.add(src);
-		if (!verticesSet.contains(dst))
-			verticesSet.add(dst);
-		for (Vertex v: verticesSet) {
-			if (v == src) {
-				v.setEdge(dst.getLabel(), weight);
-			}
-		}
-	}
+}
 
 	// Print out the complete adjacency list
 	public void print() {
