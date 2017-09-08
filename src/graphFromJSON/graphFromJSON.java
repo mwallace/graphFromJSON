@@ -5,11 +5,14 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+
+import graphFromJSON.Vertex.Edge;
 
 public class graphFromJSON {
 
@@ -22,7 +25,12 @@ public class graphFromJSON {
 		Vertex v1 = new Vertex("x");
 		Vertex v2 = new Vertex("y");
 		g.addEdge(v1, v2, 5);
-		g.addEdge(v1, v2, 5);	
+		g.addEdge(v1, v2, 5);
+		Vertex v3 = new Vertex("g");
+		g.removeVertex(v3);
+		Vertex v4 = new Vertex("x");
+		v4.setEdge("aa", 5);
+		g.addVertex(v4);
 		g.print();
 	}
 	
@@ -62,12 +70,33 @@ class Vertex {
 		Edge e = new Edge(adjacentTo, weight);
 		this.edges.add(e);
 	}
+	public HashSet<Edge> getEdges() {
+		if (edges.isEmpty()) {
+			return null;
+		} else {
+			return edges;
+		}
+	}
 	public ArrayList<String> getAdjacent() {
 		ArrayList<String> adjacentVertices = new ArrayList<String>();
 		for (Edge e: edges) {
 			adjacentVertices.add(e.adjacentTo);
 		}
 		return adjacentVertices;
+	}
+	
+	// Remove edge, give an Vertex object
+	public void removeEdge(Vertex deleteMe) {
+		// Create a temporary new Edge that simply has the same label as the 
+		// Vertex object that we want to delete
+		Edge deleteMeEdge = new Edge(deleteMe.getLabel());
+		if (edges.contains(deleteMeEdge))
+			edges.remove(deleteMeEdge);
+	}
+	
+	// Merge one set of edges with this vertex's edges
+	public void mergeEdges(HashSet<Edge> edges) {
+		edges.forEach( (e) -> this.edges.add(e));
 	}
     @Override
     public boolean equals(Object obj) {
@@ -79,11 +108,14 @@ class Vertex {
     }
 	
 	// One-way weighted edge to a vertex
-	class Edge {
+	public class Edge {
 		
 		public Edge(String adjacentTo, int weight) {
 			this.adjacentTo = adjacentTo;
 			this.weight = weight;
+		}
+		public Edge(String adjacentTo) {
+			this.adjacentTo = adjacentTo;
 		}
 		private String adjacentTo;
 		private int weight;
@@ -118,7 +150,7 @@ class Graph {
 		jsonToVertex(pathToJSON);
 		validateGraph();
 	}
-	
+
 	// Read a JSON file and convert it into a weighted graph
 	private void jsonToVertex(String pathToJSON) {
 		Gson gson = new Gson();
@@ -137,7 +169,6 @@ class Graph {
 			e.printStackTrace();
 		}
 	}
-	
 	
 	// The JSON data might not contain a valid graph structure, so this data must be 
 	// validated (e.g. if the JSON indicates an edge involving a vertex that isn't
@@ -177,7 +208,55 @@ class Graph {
 		// If src does not exist in graph, add it
 		if (!verticesSet.contains(src))
 			verticesSet.add(src);
-}
+		// If dst does not exist in graph, add it
+		if (!verticesSet.contains(dst))
+			verticesSet.add(dst);
+	}
+	
+	// Remove edge between two vertices
+	public void removeEdge(Vertex src, Vertex dst) {
+		if (verticesSet.contains(src)) {
+			src.removeEdge(dst);
+		}
+	}
+	
+	// Add vertex
+	public void addVertex(Vertex addMe) {
+		// Check to see if vertex exists in graph
+		if (!verticesSet.contains(addMe)) {
+			verticesSet.add(addMe);
+		} else {
+			// The "addMe" vertex already exists in the graph. Merge its adjacency 
+			// list with the pre-existing vertex. Since the adjacency list is a set, 
+			// we can simply add the two lists to merge without duplicates.
+		    for (Iterator<Vertex> it = verticesSet.iterator(); it.hasNext(); ) {
+		        Vertex v = it.next();
+		        if (v.getLabel() == addMe.getLabel()) {
+		        	v.mergeEdges(addMe.getEdges());
+		        }
+		    }
+		}
+		// Check to see if all vertices in the adjacency list exist in 
+		// the graph
+		addMe.getAdjacent().forEach(
+				(label) -> {
+		            if (!verticesSet.contains(label)) {
+		            	Vertex vertex = new Vertex(label);
+		            	verticesSet.add(vertex);
+		            }
+				}
+			);			
+	}
+	
+	// Remove vertex
+	public void removeVertex(Vertex removeMe) {
+		if (verticesSet.contains(removeMe)) {
+			// Remove all edges that reach removeMe
+			verticesSet.forEach((v) -> removeEdge(v, removeMe));
+			// Remove removeMe from graph
+			verticesSet.remove(removeMe);
+		}
+	}
 
 	// Print out the complete adjacency list
 	public void print() {
