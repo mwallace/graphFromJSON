@@ -3,7 +3,6 @@ package graphFromJSON;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -11,8 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-
-import graphFromJSON.Vertex.Edge;
 
 public class graphFromJSON {
 
@@ -36,112 +33,6 @@ public class graphFromJSON {
 	
 }
 
-// Vertex with label and adjacency list
-class Vertex {
-	
-	public Vertex(String label) {
-		this.label = label;
-		edges = new HashSet<Edge>();
-	}
-	
-	public void print() {
-		if (label != null)
-			System.out.print(label + "=>");
-		if (edges != null) {
-			for (Edge e : edges) {
-				System.out.println("\t" + e.adjacentTo + "\tweight: " + e.weight);
-			}
-		}
-	}
-	
-	private String label;
-	private HashSet<Edge> edges;
-	
-	public String getLabel() {
-		return label;
-	}
-	public void setLabel(String label) {
-		this.label = label;
-	}
-	public void setEdges(HashSet<Edge> edges) {
-		this.edges = edges;
-	}
-	public void setEdge(String adjacentTo, int weight) {
-		Edge e = new Edge(adjacentTo, weight);
-		this.edges.add(e);
-	}
-	public HashSet<Edge> getEdges() {
-		if (edges.isEmpty()) {
-			return null;
-		} else {
-			return edges;
-		}
-	}
-	public ArrayList<String> getAdjacent() {
-		ArrayList<String> adjacentVertices = new ArrayList<String>();
-		for (Edge e: edges) {
-			adjacentVertices.add(e.adjacentTo);
-		}
-		return adjacentVertices;
-	}
-	
-	// Remove edge, give an Vertex object
-	public void removeEdge(Vertex deleteMe) {
-		// Create a temporary new Edge that simply has the same label as the 
-		// Vertex object that we want to delete
-		Edge deleteMeEdge = new Edge(deleteMe.getLabel());
-		if (edges.contains(deleteMeEdge))
-			edges.remove(deleteMeEdge);
-	}
-	
-	// Merge one set of edges with this vertex's edges
-	public void mergeEdges(HashSet<Edge> edges) {
-		edges.forEach( (e) -> this.edges.add(e));
-	}
-    @Override
-    public boolean equals(Object obj) {
-        return !super.equals(obj);
-    }
-
-    public int hashCode() {
-        return this.label.hashCode();
-    }
-	
-	// One-way weighted edge to a vertex
-	public class Edge {
-		
-		public Edge(String adjacentTo, int weight) {
-			this.adjacentTo = adjacentTo;
-			this.weight = weight;
-		}
-		public Edge(String adjacentTo) {
-			this.adjacentTo = adjacentTo;
-		}
-		private String adjacentTo;
-		private int weight;
-		
-		public String getAdjacentTo() {
-			return adjacentTo;
-		}
-		public void setAdjacentTo(String adjacentTo) {
-			this.adjacentTo = adjacentTo;
-		}
-		public int getWeight() {
-			return weight;
-		}
-		public void setWeight(int weight) {
-			this.weight = weight;
-		}
-	    @Override
-	    public boolean equals(Object obj) {
-	        return !super.equals(obj);
-	    }
-
-	    public int hashCode() {
-	        return this.adjacentTo.hashCode();
-	    }
-	}
-}
 
 class Graph {
 	
@@ -267,4 +158,124 @@ class Graph {
 	}
 	//protected ArrayList<Vertex> vertices;
 	protected HashSet<Vertex> verticesSet;
+}
+
+//Vertex with label and adjacency list
+class Vertex {
+	
+	public Vertex(String label) {
+		this.label = label;
+		edges = new HashSet<Edge>();
+	}
+	
+	// Print out the vertex label and its adjacency list, including weights
+	public void print() {
+		if (label != null)
+			System.out.print(label + "=>");
+		if (edges != null) {
+			for (Edge e : edges) {
+				System.out.println("\t" + e.adjacentTo + "\tweight: " + e.weight);
+			}
+		}
+	}
+	
+	// Return a list of the labels of each adjacent vertex
+	public ArrayList<String> getAdjacent() {
+		ArrayList<String> adjacentVertices = new ArrayList<String>();
+		for (Edge e: edges) {
+			adjacentVertices.add(e.adjacentTo);
+		}
+		return adjacentVertices;
+	}
+	
+	// Remove edge, give an Vertex object
+	public void removeEdge(Vertex deleteMe) {
+		// Create a temporary new Edge that simply has the same label as the 
+		// Vertex object that we want to delete
+		Edge deleteMeEdge = new Edge(deleteMe.getLabel());
+		if (edges.contains(deleteMeEdge))
+			edges.remove(deleteMeEdge);
+	}
+	
+	// Merge one set of edges with this vertex's edges
+	public void mergeEdges(HashSet<Edge> edges) {
+		edges.forEach( (e) -> this.edges.add(e));
+	}
+	
+	public String getLabel() {
+		return label;
+	}
+	
+	public void setLabel(String label) {
+		this.label = label;
+	}
+	
+	public HashSet<Edge> getEdges() {
+		if (edges.isEmpty()) {
+			return null;
+		} else {
+			return edges;
+		}
+	}
+	
+	public void setEdges(HashSet<Edge> edges) {
+		this.edges = edges;
+	}
+	
+	public void setEdge(String adjacentTo, int weight) {
+		Edge e = new Edge(adjacentTo, weight);
+		this.edges.add(e);
+	}
+	
+ @Override
+ public boolean equals(Object obj) {
+     return !super.equals(obj);
+ }
+ 
+ public int hashCode() {
+     return this.label.hashCode();
+ }   
+ 
+	private String label;
+	private HashSet<Edge> edges;
+	// One-way weighted edge to a vertex
+	public class Edge {
+		
+		public Edge(String adjacentTo, int weight) {
+			this.adjacentTo = adjacentTo;
+			this.weight = weight;
+		}
+		
+		public Edge(String adjacentTo) {
+			this.adjacentTo = adjacentTo;
+		}
+		
+		public String getAdjacentTo() {
+			return adjacentTo;
+		}
+		
+		public void setAdjacentTo(String adjacentTo) {
+			this.adjacentTo = adjacentTo;
+		}
+		
+		public int getWeight() {
+			return weight;
+		}
+		
+		public void setWeight(int weight) {
+			this.weight = weight;
+		}
+		
+	    @Override
+	    public boolean equals(Object obj) {
+	        return !super.equals(obj);
+	    }
+	    
+	    public int hashCode() {
+	        return this.adjacentTo.hashCode();
+	    }
+	    
+		private String adjacentTo;
+		private int weight;
+	}
 }
