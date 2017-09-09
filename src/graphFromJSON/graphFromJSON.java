@@ -27,8 +27,11 @@ public class graphFromJSON {
 		g.removeVertex(v3);
 		Vertex v4 = new Vertex("x");
 		v4.setEdge("aa", 5);
+		g.addEdge(v2, v3, 3);
+		g.addEdge(v3, v1, 1);
 		g.addVertex(v4);
-		g.print();
+		//g.print();
+		g.dfsPrint(v1);
 	}
 	
 }
@@ -148,6 +151,23 @@ class Graph {
 			verticesSet.remove(removeMe);
 		}
 	}
+	
+	public void dfsPrint(Vertex visitMe) {
+		if (visitMe == null)
+			return;
+		visitMe.print();
+		visitMe.setFlag(true);
+		for (String label: visitMe.getAdjacent()) {
+			// Look up reference for vertex matching label
+			for (Iterator<Vertex> it = verticesSet.iterator(); it.hasNext(); ) {
+		        Vertex v = it.next();
+		        if (v.getLabel() == label) {
+		        	if (!v.getFlag())
+		        		dfsPrint(v);
+		        }
+			}
+		}		
+	}
 
 	// Print out the complete adjacency list
 	public void print() {
@@ -166,17 +186,21 @@ class Vertex {
 	public Vertex(String label) {
 		this.label = label;
 		edges = new HashSet<Edge>();
+		this.flag = false;
 	}
 	
 	// Print out the vertex label and its adjacency list, including weights
 	public void print() {
 		if (label != null)
 			System.out.print(label + "=>");
-		if (edges != null) {
+		if (edges != null && !edges.isEmpty()) {
 			for (Edge e : edges) {
 				System.out.println("\t" + e.adjacentTo + "\tweight: " + e.weight);
 			}
+		} else {
+			System.out.println();
 		}
+			
 	}
 	
 	// Return a list of the labels of each adjacent vertex
@@ -202,6 +226,13 @@ class Vertex {
 		edges.forEach( (e) -> this.edges.add(e));
 	}
 	
+	public Boolean getFlag() {
+		return flag;
+	}
+	
+	public void setFlag(Boolean flag) {
+		this.flag = flag;
+	}
 	public String getLabel() {
 		return label;
 	}
@@ -227,17 +258,18 @@ class Vertex {
 		this.edges.add(e);
 	}
 	
- @Override
- public boolean equals(Object obj) {
-     return !super.equals(obj);
- }
- 
- public int hashCode() {
-     return this.label.hashCode();
- }   
+	@Override
+	public boolean equals(Object obj) {
+	    return !super.equals(obj);
+	}
+	 
+	public int hashCode() {
+	    return this.label.hashCode();
+	}   
  
 	private String label;
 	private HashSet<Edge> edges;
+	private Boolean flag;
 	// One-way weighted edge to a vertex
 	public class Edge {
 		
